@@ -9,7 +9,7 @@ var game = function() {
 	.controls().touch()
 	.enableSound();
 
-	var next_level = 0;
+	var next_level;
 	var current_level;
 	
 	/*--------------------------------------------------------------------------------------
@@ -2506,6 +2506,7 @@ var game = function() {
 	 	Q.stageTMX("forest.tmx",stage);
 	 	Q.audio.stop();
 	 	Q.audio.play('forest.wav',{ loop: true });
+		next_level = 0;
 	 	current_level = 'forest';
 
 	 	Q.state.set("num_hearts",2);
