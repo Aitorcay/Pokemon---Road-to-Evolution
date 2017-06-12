@@ -11,6 +11,7 @@ var game = function() {
 
 	var next_level = 0;
 	var current_level;
+	var current_coins;
 	
 	/*--------------------------------------------------------------------------------------
 									ANIMACIONES
@@ -302,9 +303,6 @@ var game = function() {
 			this.entity.cooldown = 0.5;
 
 			this.entity.on("hit",function(collision) {
-				if(collision.obj.isA("Coin")) {
-					collision.obj.trigger("picked");
-				}
 				if(collision.obj.isA("Goal")) {
 					collision.obj.trigger("goal");
 					this.destroy();
@@ -360,6 +358,7 @@ var game = function() {
 					Q.state.get("hearts")[0].p.sheet = "ok";
 					Q.state.get("hearts")[1].p.sheet = "ok";
 					Q.state.get("hearts")[2].p.sheet = "ok";
+					Q.state.set("coins",current_coins);
 		   			Q.stageScene(current_level);
 				}    	
 		    },
@@ -2100,7 +2099,8 @@ var game = function() {
 				sprite: "aranja",
 				sensor : true,
 				grados : 0,
-				active : false			
+				active : false,
+				taken: false		
 			});	
 
 			this.add('animation,tween');
@@ -2115,14 +2115,14 @@ var game = function() {
 		 {
 		 	if(collision.p.tipo == "player") {
 					this.destroy();
-					if(!this.p.taked)
+					if(!this.p.taken)
 					Q.state.get("hearts")[Q.state.get("num_hearts")].p.sheet = "ok";
 					if(Q.state.get("num_hearts")<2)
 					{
 						Q.state.inc("num_hearts",1);
 						Q.state.get("hearts")[Q.state.get("num_hearts")].p.sheet = "ok";
 					}
-					this.p.taked = true;
+					this.p.taken = true;
 				}
 			 
 			 	
@@ -2147,21 +2147,29 @@ var game = function() {
 			this._super(p, {
 				sheet: "coin",
 				sprite: "coin",
-				sensor : true,		
+				sensor : true,
+				taken: false		
 			});	
 
 			this.add('animation,tween');
 			this.play("rotate");
-
-			this.on("picked", "vanish");
 		},
 
-		vanish: function() {
-			this.destroy();
-			Q.audio.play('coin.wav');
-			//Q.state.inc("coins",1);
-		}
+		sensor :function(collision) 
+		 {
+		 	if(collision.p.tipo == "player") {
+				this.destroy();
+				if(!this.p.taken) {
+					Q.audio.play('coin.wav');
+					Q.state.inc("coins",1);
+					this.p.taken = true;
+				}				
+			}		 
+		 },
 
+		 step : function(dt){
+		 	this.on("sensor");
+		 }
 	});
 
 	/*--------------------------------------------------------------------------------------
@@ -2217,7 +2225,7 @@ var game = function() {
 				sensor : true,
 				transicion : 30	,
 				active:false,
-				taked : false,
+				taken : false,
 
 			});	
 
@@ -2226,18 +2234,19 @@ var game = function() {
 			this.timer =  0;
 			
 		},
+
 		animate_revive_loop:function(){
 			this.animate({y:this.p.y + (this.p.transicion=this.p.transicion*(-1))},1.5,{callback:function(){
-				this.animate_revive_loop()}});
-		
+				this.animate_revive_loop()}});		
 		},
+
 		sensor :function(collision) 
 		 {
 		 	if(collision.p.tipo == "player") {
 					this.destroy();
-					if(!this.p.taked)
+					if(!this.p.taken)
 					Q.state.inc("lives",1);
-					this.p.taked = true;
+					this.p.taken = true;
 				}		 
 		 },
 
@@ -2655,11 +2664,29 @@ var game = function() {
 	        }
 		});
 
+		Q.UI.Text.extend("Coins",{ 
+	        init: function(p) {
+	            this._super({
+	                label: "Coins: 0",
+	                color: "white",
+	                x: 0,
+	                y: 10
+	            });
+
+	            Q.state.on("change.coins",this,"coins");
+	        },
+
+	        coins: function(coins) {
+	            this.p.label = "Coins: " + coins;
+	        }
+		});
+
 		var container = stage.insert(new Q.UI.Container({
-		    x: Q.width/4, y: 0, fill: "rgba(0,0,0,0.5)"
+		    x: Q.width/2, y: 0, fill: "rgba(0,0,0,0.5)"
 		  }));
 		 
 		container.insert(new Q.Lifes());
+		container.insert(new Q.Coins());
 
 		
 		// array de corazones
@@ -2708,11 +2735,12 @@ var game = function() {
 	    
 	    btJugar.on("click",function() {
 	        Q.clearStages();
-	        Q.state.reset({lives: 3});
+	        Q.state.reset({lives: 3, coins: 0});
 	        Q.audio.stop();	   
 	        Q.stageScene('HUD',1);     
 	        Q.stageScene('forest');
 	        next_level = 0;
+	        current_coins = 0;
 	    })
 
 	    
@@ -2812,6 +2840,7 @@ var game = function() {
 	                                        label: stage.options.label }));
 	    button.on("click",function() {
 	   		next_level += 1;
+	   		current_coins = Q.state.get("coins");
 			Q.clearStage(0);
 			Q.clearStage(2);
 			Q.audio.stop();
