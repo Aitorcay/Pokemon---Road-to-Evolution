@@ -64,8 +64,8 @@
   <object id="3" name="Pikachu" gid="5" x="169" y="356" width="40" height="52"/>
   <object id="4" name="Bulbasaur" gid="13" x="71" y="490" width="38" height="44"/>
   <object id="5" name="Charmander" gid="25" x="201" y="570" width="38" height="44"/>
-  <object id="6" name="Squirtle" gid="37" x="532" y="343" width="34" height="36"/>
-  <object id="7" name="Machop" gid="49" x="491" y="564" width="38" height="42"/>
-  <object id="8" name="Gastly" gid="61" x="628" y="480" width="50" height="64"/>
+  <object id="6" name="Squirtle" gid="37" x="532" y="353" width="34" height="36"/>
+  <object id="7" name="Machop" gid="49" x="491" y="574" width="38" height="42"/>
+  <object id="8" name="Gastly" gid="61" x="628" y="490" width="50" height="64"/>
  </objectgroup>
 </map>
