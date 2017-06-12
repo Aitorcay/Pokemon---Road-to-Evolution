@@ -9,7 +9,7 @@ var game = function() {
 	.controls().touch()
 	.enableSound();
 
-	var next_level;
+	var next_level = 0;
 	var current_level;
 	
 	/*--------------------------------------------------------------------------------------
@@ -299,7 +299,7 @@ var game = function() {
 		added: function() {
 
 			this.entity.timer =  0;
-			this.entity.cooldown = 0.75;
+			this.entity.cooldown = 0.5;
 
 			this.entity.on("hit",function(collision) {
 				if(collision.obj.isA("Coin")) {
@@ -347,6 +347,8 @@ var game = function() {
 
 			die: function() {
 		    	if (Q.state.get("lives") == 0) {
+		    		this.del('platformerControls');
+					this.del('2d');
 					this.destroy();
 					Q.audio.stop();	
 					Q.stageScene("endGame",2, { label: "You Died!" });	
@@ -372,11 +374,11 @@ var game = function() {
 			    	
 			    	if (this.p.gravity > 0) {
 			    		if(Q.state.get("hearts")[num_hearts].p.sheet == "hurt"){
-				    		Q.state.get("hearts")[num_hearts].p.sheet = "NA"
+				    		Q.state.get("hearts")[num_hearts].p.sheet = "NA";
 				    		Q.state.dec("num_hearts",1);
 				    	}
 				    	else
-				    		Q.state.get("hearts")[num_hearts].p.sheet = "hurt"
+				    		Q.state.get("hearts")[num_hearts].p.sheet = "hurt";
 
 				    	this.animate({ opacity: 0.5 },0.1,{callback:function(){
 							
@@ -385,11 +387,12 @@ var game = function() {
 			    	}	
 
 			    	else {
-			    		Q.state.set("num_hearts",-1);
+			    		Q.state.get("hearts")[0].p.sheet = "NA";
+
 			    	}	    	
 		    	}
 
-		    	if (num_hearts < 0) {
+		    	if (Q.state.get("hearts")[0].p.sheet == "NA") {
 		    		this.die();
 			    }	    	
 		    }
@@ -417,21 +420,23 @@ var game = function() {
 			Q.input.on("fire",this,"attack");
 
 			Q.input.on("action",this,"switch");
+
+			Q.audio.play("pikachu.wav");
 		},		
 
 	    attack: function() {
-	    	if (this.timer > this.cooldown) {
+	    	if (this.timer > this.cooldown && !this.p.fight) {
 	    		this.p.sheet = "attack_pikachu";
 	    		this.p.fight = true;
-		    	if(this.p.direction == "right") {
-		    		this.play("attack_R");
-		    		Q.stage(0).insert(new Q.Spark({ x: (this.p.x + this.p.w + 1), y: (this.p.y), vx : 200}));
-		    		Q.audio.play('thunder.wav');
-		    	}
-		    	else if(this.p.direction == "left") {
+		    	if(this.p.direction == "left") {
 		    	 	this.play("attack_L");
 		    	 	Q.stage(0).insert(new Q.Spark({ x: (this.p.x - this.p.w - 1), y: (this.p.y), vx : -200}));
 		    	 	Q.audio.play('thunder.wav');
+		    	}
+		    	else {
+		    		this.play("attack_R");
+		    		Q.stage(0).insert(new Q.Spark({ x: (this.p.x + this.p.w + 1), y: (this.p.y), vx : 200}));
+		    		Q.audio.play('thunder.wav');
 		    	}
 		    }
 	    },
@@ -443,8 +448,10 @@ var game = function() {
 	    },
 
 	    switch: function() {
-	    	if (this.p.vy == 0) {
-			    var next = new Q.Bulbasaur({ x: this.p.x, y: this.p.y, vx : 0, vy : 0 });
+	    	if (this.p.vy == 0 && this.timer > (this.cooldown * 1.5)) {
+			    var next = new Q.Bulbasaur({ x: this.p.x, y: this.p.y, direction: this.p.direction});
+			    if (next.p.direction == "left") next.p.vx = -1;
+			    else next.p.vx = 1;
 			    this.destroy();
 			    Q.stage(0).insert(next);
 			    Q.stage(0).add("viewport").follow(next,{ x: true, y: false });
@@ -472,21 +479,23 @@ var game = function() {
 			Q.input.on("fire",this,"attack");
 
 			Q.input.on("action",this,"switch");
+
+			Q.audio.play("bulbasaur.wav");
 		},
 
 	    attack: function() {
-	    	if (this.timer > this.cooldown) {
+	    	if (this.timer > this.cooldown && !this.p.fight) {
 	    		this.p.sheet = "attack_bulbasaur";
 	    		this.p.fight = true;
-		    	if(this.p.direction == "right") {
-		    		this.play("attack_R");
-		    		Q.stage(0).insert(new Q.Leaf({ x: (this.p.x + this.p.w + 4), y: (this.p.y), vx : 200}));
-		    		Q.audio.play('leaves.wav');
-		    	}
-		    	else if(this.p.direction == "left") {
+		    	if(this.p.direction == "left") {
 		    	 	this.play("attack_L");
 		    	 	Q.stage(0).insert(new Q.Leaf({ x: (this.p.x - this.p.w - 4), y: (this.p.y), vx : -200}));
 		    	 	Q.audio.play('leaves.wav');
+		    	}
+		    	else {
+		    		this.play("attack_R");
+		    		Q.stage(0).insert(new Q.Leaf({ x: (this.p.x + this.p.w + 4), y: (this.p.y), vx : 200}));
+		    		Q.audio.play('leaves.wav');
 		    	}
 		    }
 	    },
@@ -498,8 +507,10 @@ var game = function() {
 	    },
 
 	    switch: function() {
-	    	if (this.p.vy == 0) {
-			    var next = new Q.Charmander({ x: this.p.x, y: this.p.y, vx : 0, vy : 0 });
+	    	if (this.p.vy == 0 && this.timer > (this.cooldown * 1.5)) {
+			    var next = new Q.Charmander({ x: this.p.x, y: this.p.y, vx : 0, vy : 0, direction: this.p.direction});
+			    if (next.p.direction == "left") next.p.vx = -1;
+			    else next.p.vx = 1;
 			    this.destroy();
 			    Q.stage(0).insert(next);
 			    Q.stage(0).add("viewport").follow(next,{ x: true, y: false });
@@ -527,21 +538,23 @@ var game = function() {
 			Q.input.on("fire",this,"attack");
 
 			Q.input.on("action",this,"switch");
+
+			Q.audio.play("charmander.wav");
 		},
 
 	    attack: function() {
-	    	if (this.timer > this.cooldown) {
+	    	if (this.timer > this.cooldown && !this.p.fight) {
 	    		this.p.sheet = "attack_charmander";
 	    		this.p.fight = true;
-		    	if(this.p.direction == "right") {
-		    		this.play("attack_R");
-		    		Q.stage(0).insert(new Q.Fireball({ x: (this.p.x + this.p.w + 1), y: (this.p.y), vx : 200}));
-		    		Q.audio.play('fireball.wav');
-		    	}
-		    	else if(this.p.direction == "left") {
+		    	if(this.p.direction == "left") {
 		    	 	this.play("attack_L");
 		    	 	Q.stage(0).insert(new Q.Fireball({ x: (this.p.x - this.p.w - 1), y: (this.p.y), vx : -200}));
 		    	 	Q.audio.play('fireball.wav');
+		    	}
+		    	else {
+		    		this.play("attack_R");
+		    		Q.stage(0).insert(new Q.Fireball({ x: (this.p.x + this.p.w + 1), y: (this.p.y), vx : 200}));
+		    		Q.audio.play('fireball.wav');
 		    	}
 		    }
 	    },
@@ -553,8 +566,10 @@ var game = function() {
 	    },
 
 	    switch: function() {
-	    	if (this.p.vy == 0) {
-			    var next = new Q.Squirtle({ x: this.p.x, y: this.p.y, vx : 0, vy : 0 });
+	    	if (this.p.vy == 0 && this.timer > (this.cooldown * 1.5)) {
+			    var next = new Q.Squirtle({ x: this.p.x, y: this.p.y, vx : 0, vy : 0, direction: this.p.direction});
+			    if (next.p.direction == "left") next.p.vx = -1;
+			    else next.p.vx = 1;
 			    this.destroy();
 			    Q.stage(0).insert(next);
 			    Q.stage(0).add("viewport").follow(next,{ x: true, y: false });
@@ -582,21 +597,23 @@ var game = function() {
 			Q.input.on("fire",this,"attack");
 
 			Q.input.on("action",this,"switch");
+
+			Q.audio.play("squirtle.wav");
 		},
 
 	    attack: function() {
-	    	if (this.timer > this.cooldown) {
+	    	if (this.timer > this.cooldown && !this.p.fight) {
 	    		this.p.sheet = "attack_squirtle";
 	    		this.p.fight = true;
-		    	if(this.p.direction == "right") {
-		    		this.play("attack_R");
-		    		Q.stage(0).insert(new Q.Bubble({ x: (this.p.x + this.p.w + 1), y: (this.p.y), vx : 200}));
-		    		Q.audio.play('bubble.wav');
-		    	}
-		    	else if(this.p.direction == "left") {
+		    	if(this.p.direction == "left") {
 		    	 	this.play("attack_L");
 		    	 	Q.stage(0).insert(new Q.Bubble({ x: (this.p.x - this.p.w - 1), y: (this.p.y), vx : -200}));
 		    	 	Q.audio.play('bubble.wav');
+		    	}
+		    	else {
+		    		this.play("attack_R");
+		    		Q.stage(0).insert(new Q.Bubble({ x: (this.p.x + this.p.w + 1), y: (this.p.y), vx : 200}));
+		    		Q.audio.play('bubble.wav');
 		    	}
 		    }
 	    },
@@ -608,8 +625,10 @@ var game = function() {
 	    },
 
 	    switch: function() {
-	    	if (this.p.vy == 0) {
-			    var next = new Q.Machop({ x: this.p.x, y: this.p.y, vx : 0, vy : 0 });
+	    	if (this.p.vy == 0 && this.timer > (this.cooldown * 1.5)) {
+			    var next = new Q.Machop({ x: this.p.x, y: this.p.y-5, vx : 0, vy : 0, direction: this.p.direction});
+			    if (next.p.direction == "left") next.p.vx = -10;
+			    else next.p.vx = 1;
 			    this.destroy();
 			    Q.stage(0).insert(next);
 			    Q.stage(0).add("viewport").follow(next,{ x: true, y: false });
@@ -637,19 +656,21 @@ var game = function() {
 			Q.input.on("fire",this,"attack");
 
 			Q.input.on("action",this,"switch");
+
+			Q.audio.play("machop.wav");
 		},
 
 	    attack: function() {
-	    	if (this.timer > this.cooldown) {
-		    	if(this.p.direction == "right") {
-		    		this.p.sheet = "attack_machop";
-		    		this.p.fight = true;
-		    		this.play("attack_R");
-		    	}
-		    	else if(this.p.direction == "left") {
+	    	if (this.timer > this.cooldown && !this.p.fight) {
+		    	if(this.p.direction == "left") {
 		    	 	this.p.sheet = "attack_machop";
 		    	 	this.p.fight = true;
 		    	 	this.play("attack_L");
+		    	}
+		    	else {
+		    		this.p.sheet = "attack_machop";
+		    		this.p.fight = true;
+		    		this.play("attack_R");
 		    	}
 		    	Q.audio.play('machop.wav');
 		    }
@@ -662,8 +683,10 @@ var game = function() {
 	    },
 
 	    switch: function() {
-	    	if (this.p.vy == 0) {
-			    var next = new Q.Gastly({ x: this.p.x, y: this.p.y, vx : 0, vy : 0 });
+	    	if (this.p.vy == 0 && this.timer > (this.cooldown * 1.5)) {
+			    var next = new Q.Gastly({ x: this.p.x, y: this.p.y, vx : 0, vy : 0, direction: this.p.direction});
+			    if (next.p.direction == "left") next.p.vx = -1;
+			    else next.p.vx = 1;
 			    this.destroy();
 			    Q.stage(0).insert(next);
 			    Q.stage(0).add("viewport").follow(next,{ x: true, y: false });
@@ -706,13 +729,17 @@ var game = function() {
 					Q.audio.play('portal.wav');
 				}
 			});
+
+			Q.audio.play("gastly.wav");
 		},
 
 	    attack: function() {},
 
 	    switch: function() {
-	    	if (this.p.vy == 0) {
-			    var next = new Q.Pikachu({ x: this.p.x, y: this.p.y, vx : 0, vy : 0 });
+	    	if (this.p.vy == 0 && this.timer > (this.cooldown * 2.5)) {
+			    var next = new Q.Pikachu({ x: this.p.x, y: this.p.y, vx : 0, vy : 0, direction: this.p.direction});
+			    if (next.p.direction == "left") next.p.vx = -1;
+			    else next.p.vx = 1;
 			    this.destroy();
 			    Q.stage(0).insert(next);
 			    Q.stage(0).add("viewport").follow(next,{ x: true, y: false });
@@ -1253,9 +1280,6 @@ var game = function() {
 				 	if (collision.obj.p.gravity > 0) {
 				 		Q.audio.play('boing.wav');
 				 		collision.obj.p.vy = -550;
-				 	}
-				 	else {
-				 		collision.obj.die();
 				 	}
 			 	}
 			 });
@@ -2420,7 +2444,7 @@ var game = function() {
 	Q.load(["pikachu.png","pikachu.json","squirtle.png", "squirtle.json","bulbasaur.png", "bulbasaur.json","charmander.png", "charmander.json","machop.png", "machop.json","gastly.png", "gastly.json","caterpie.png", "caterpie.json","weedle.png", "weedle.json","ekans.png", "ekans.json","rattata.png", "rattata.json","tauros.png", "tauros.json","fearow.png", "fearow.json","aerodactyl.png", "aerodactyl.json","snorlax.png", "snorlax.json","muk.png", "muk.json","magnemite.png","magnemite.json","ditto.png","ditto.json","nidoran.png","nidoran.json"
 			,"pidgey.png", "pidgey.json","zubat.png","zubat.json","geodude.png","geodude.json","voltorb.png","voltorb.json","primeape.png", "primeape.json","arbok.png", "arbok.json","magneton.png","magneton.json","arcanine.png","arcanine.json","spark.png", "spark.json","leaf.png","leaf.json","bubble.png","bubble.json","fireball.png","fireball.json","sting.png","sting.json","tree.png","tree.json","rock.png","rock.json","ice.png","ice.json","tesla.png","tesla.json","explosion.png","explosion.json","bonfire.png","bonfire.json","portal.png","portal.json","goal.png","brick.png"
 			,"aranja.png","aranja.json","coin.png","coin.json","heart.png","heart.json","max-revive.png","max-revive.json","scale.png","scale.json","medals.png","medals.json","revive.png","revive.json","start.png","controls.png","credits.png","jugar.png","controles.png","creditos.png","back.png","caterpie.wav","weedle.wav","ekans.wav","nidoran.wav","rattata.wav","tauros.wav","pidgey.wav","zubat.wav","geodude.wav","muk.wav","ditto.wav","voltorb.wav","magnemite.wav","primeape.wav","arbok.wav","magneton.wav","arcanine.wav","coin.wav","cut.wav","rock.wav","steam.wav","tesla.wav",
-			,"explosion.wav","boing.wav","forest.wav","cave.wav","city.wav","sunset.wav","start.wav","machop.wav","portal.wav","thunder.wav","fireball.wav","leaves.wav","bubble.wav","evo_pikachu.png","evo_bulbasaur.png","evo_charmander.png","evo_squirtle.png","evo_machop.png","evo_gastly.png","arceus.png","evo_pikachu.json","evo_bulbasaur.json","evo_charmander.json","evo_squirtle.json","evo_machop.json","evo_gastly.json","arceus.json","end.png","evolution.wav","victory.wav"], function() {
+			,"explosion.wav","boing.wav","forest.wav","cave.wav","city.wav","sunset.wav","start.wav","portal.wav","thunder.wav","fireball.wav","leaves.wav","bubble.wav","evo_pikachu.png","evo_bulbasaur.png","evo_charmander.png","evo_squirtle.png","evo_machop.png","evo_gastly.png","arceus.png","evo_pikachu.json","evo_bulbasaur.json","evo_charmander.json","evo_squirtle.json","evo_machop.json","evo_gastly.json","arceus.json","end.png","evolution.wav","victory.wav","pikachu.wav","bulbasaur.wav","charmander.wav","squirtle.wav","machop.wav","gastly.wav"], function() {
 	
 	//Personajes
 		Q.compileSheets("pikachu.png","pikachu.json");
@@ -2506,7 +2530,6 @@ var game = function() {
 	 	Q.stageTMX("forest.tmx",stage);
 	 	Q.audio.stop();
 	 	Q.audio.play('forest.wav',{ loop: true });
-		next_level = 0;
 	 	current_level = 'forest';
 
 	 	Q.state.set("num_hearts",2);
@@ -2594,6 +2617,18 @@ var game = function() {
 	 	Q.audio.stop();
 	 	Q.audio.play('evolution.wav',{ loop: true });
 		current_level = 'the_end';
+
+		var contFin = stage.insert(new Q.UI.Container({ x: 111, y: 49 }));
+
+	    var btFin = contFin.insert(new Q.UI.Button({ x: 260, y: 540, asset: "back.png"}));      
+
+	    
+	    btFin.on("click",function() {
+	        Q.clearStages();   
+	        Q.audio.stop();
+	        Q.audio.play('start.wav',{ loop: true });
+	        Q.stageScene('menu');
+	    })
 		//variables globales y HUD
 	});
 
@@ -2677,6 +2712,7 @@ var game = function() {
 	        Q.audio.stop();	   
 	        Q.stageScene('HUD',1);     
 	        Q.stageScene('forest');
+	        next_level = 0;
 	    })
 
 	    
