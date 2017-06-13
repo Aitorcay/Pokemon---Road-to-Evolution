@@ -71,3 +71,49 @@ El código de los proyectiles es similar entre todos. Al chocar con el obstácul
 Salvo la torreta, que puede tener distintos efectos sobre el escenario, el resto de obstáculos desaparecen cuando se da el evento necesario.
 
 Los ítems han sido implementados como sensores. Las bayas y revivires cuentan con un pequeño delay para ser recogidos y están animadas con tween para llamar la atención del jugador.
+
+### Equipo de desarrollo
+
+##### Game & level design:
+- Aitor Cayón Ruano
+##### Programmers:
+- Aitor Cayón Ruano
+- Yu Liu
+- Gabriel Sellés Salvà
+- Víctor Tobes Pérez
+
+##### Carga de trabajo
+- Aitor Cayón Ruano: 40%
+- Yu Liu: 20%
+- Gabriel Sellés Salvà: 20%
+- Víctor Tobes Pérez: 20%
+
+Para facilitar la transmisión del concepto del juego uno de los miembros ha asumido más carga de trabajo con el fin de encaminar el proyecto. Una vez clara la idea a desarrollar el reparto en las distintas áreas de programación ha sido equitativo.
+
+##### Reparto del trabajo
+- Aitor Cayón Ruano: niveles e interfaz, personajes jugables y obstaculos.
+- Yu Liu: enemigos
+- Gabriel Sellés Salvá: enemigos.
+- Víctor Tobes Pérez: HUD e ítems.
+
+Debido a la gran cantidad y diversidad de enemigos decidimos destinar a dos miembros para esa tarea.
+
+### Assets
+
+##### Sprites
+Pertenecientes a la saga Pokémon Mundo Misterioso de Nintendo.
+https://www.spriters-resource.com/ds_dsi/pokemonmysterydungeonexplorersoftimedarkness/
+
+##### Música
+Perteneciente a los juegos Pokémon Rojo y Azul de Nintendo.
+https://downloads.khinsider.com/game-soundtracks/album/pokemon-original-game-soundtrack
+
+##### Otros assets
+Fuego: https://www.spriters-resource.com/arcade/joenmac/sheet/27553/
+Background de cueva: http://pukahuna.deviantart.com/art/Cave-Background-584380837
+Background de ciudad: http://grigoreen.tumblr.com/post/106167118417
+Estatua de arceus: http://photobucket.com/gallery/user/V0RT3X-1989/media/bWVkaWFJZDoxNDk3NjE0NQ==/?ref=
+Moneda: http://www.sprites-unlimited.com/game/?code=PokemonTCG
+Tileset:http://www.supermariobrosx.org/forums/viewtopic.php?f=49&t=4572 BMatSantos 
+
+Disculpas por los assets que hayamos olvidado mencionar. Gracias por vuestra ayuda y gracias por jugar. Esperamos que lo disfrutéis.
