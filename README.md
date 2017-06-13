@@ -41,7 +41,7 @@ Las mecánicas implementadas se pueden clasificar en las siguientes categorías.
 
 ##### HUD
 - Vidas: cada vez que el jugador se cae del escenario o se queda sin salud pierde una vida. Al quedarse sin vidas termina el juego.
-- Corazones: representan la salud deljugador. Cada vez que choca con un enemigo o es golpeado por un proyectil pierde medio corazón.
+- Corazones: representan la salud del jugador. Cada vez que choca con un enemigo o es golpeado por un proyectil pierde medio corazón.
 
 ##### Ítems
 - Monedas: objetos coleccionables. En cada nivel hay repartidas 3 monedas, algunas solo alcanzables utilizando los poderes de un personaje en concreto.
@@ -49,5 +49,25 @@ Las mecánicas implementadas se pueden clasificar en las siguientes categorías.
 - Revivir: nos permite recuperar una vida. Son dropeadas por los bosses.
 
 
+### Diseño e implementación
 
+El juego ha sido implementada con el motor Quintus y los escenarios han sido construidos con el editor de mapas Tiled.
+Para un código más limpio y reutilizable hemos encapsulado el código en distintos componentes:
 
+- Player: gestiona el daño y la muerte del jugador, así como las animaciones asociadas al movimiento.
+Además de esto, en cada personaje jugable está implementado su ataque y la rotación con el siguiente personaje.
+
+- DefaultEnemy: gestiona las colisiones del jugador y sus ataques con los enemigos.
+- NormalEnemy: implementa el comportamiento de los enemigos normales.
+- ShooterEnemy: implementa el comportamiento de los enemigos disparadores.
+- AngryEnemy: implementa el comportamiento de los enemigos irascibles.
+- FlyingEnemy: implementa el comportamiento de los enemigos voladores.
+- ElasticEnemy: implementa el comportamiento de los enemigos elásticos.
+- ExplosiveEnemy: implementa el comportamiento de los enemigos explosivos.
+- PlatformEnemy: implementa el comportamiento de los enemigos que podemos usar como plataforma móvil.
+Los bosses únicamente cuentan con el componente defaultEnemy.
+
+El código de los proyectiles es similar entre todos. Al chocar con el obstáculo correspondiente lo eliminan, o en el caso de los proyectiles enemigos causan daño al jugador.
+Salvo la torreta, que puede tener distintos efectos sobre el escenario, el resto de obstáculos desaparecen cuando se da el evento necesario.
+
+Los ítems han sido implementados como sensores. Las bayas y revivires cuentan con un pequeño delay para ser recogidos y están animadas con tween para llamar la atención del jugador.
