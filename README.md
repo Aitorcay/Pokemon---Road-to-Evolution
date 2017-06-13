@@ -41,7 +41,7 @@ Las mecánicas implementadas se pueden clasificar en las siguientes categorías.
 
 ##### HUD
 - Vidas: cada vez que el jugador se cae del escenario o se queda sin salud pierde una vida. Al quedarse sin vidas termina el juego.
-- Corazones: representan la salud del jugador. Cada vez que choca con un enemigo o es golpeado por un proyectil pierde medio corazón.
+- Corazones: representan la salud del jugador. Cada vez que choca con un enemigo o es golpeado por un proyectil pierde medio corazón. Como excepción Gastly será derrotado con un solo golpe, compensando así su gran capacidad de movimiento.
 
 ##### Ítems
 - Monedas: objetos coleccionables. En cada nivel hay repartidas 3 monedas, algunas solo alcanzables utilizando los poderes de un personaje en concreto.
